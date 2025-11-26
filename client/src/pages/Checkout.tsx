@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
-import { orderService } from '../services/api';
+import { firestoreOrderService as orderService } from '../services/firestore';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
