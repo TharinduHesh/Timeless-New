@@ -1,5 +1,31 @@
 {
   "version": 2,
+  "buildCommand": "cd client && npm install && npm run build",
+  "outputDirectory": "client/dist",
+  "framework": "vite",
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/dist/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.css",
@@ -28,5 +54,8 @@
         }
       ]
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
