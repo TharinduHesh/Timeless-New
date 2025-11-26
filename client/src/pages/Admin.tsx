@@ -342,13 +342,7 @@ const Admin = () => {
       // Upload new images if selected
       if (selectedImages.length > 0) {
         setUploadingImages(true);
-        const formData = new FormData();
-        selectedImages.forEach(file => {
-          formData.append('images', file);
-        });
-        formData.append('productId', id);
-        
-        const files = Array.from(newImages) as File[];
+        const files = Array.from(selectedImages) as File[];
         newImageUrls = await firestoreStorageService.uploadImages(files, id);
       }
       
