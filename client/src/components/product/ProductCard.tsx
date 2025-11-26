@@ -17,7 +17,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const isOutOfStock = product.stock === 0;
   const hasDiscount = product.discount && product.discount > 0;
-  const originalPrice = hasDiscount ? product.price / (1 - product.discount / 100) : product.price;
+  const originalPrice = hasDiscount ? product.price / (1 - (product.discount ?? 0) / 100) : product.price;
 
   return (
     <div className="product-card group relative">

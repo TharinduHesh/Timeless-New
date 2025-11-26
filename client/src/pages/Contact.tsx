@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { FiMail, FiPhone, FiMapPin, FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiMail, FiPhone, FiMapPin, FiCheckCircle } from 'react-icons/fi';
 import { firestoreContactService } from '../services/firestore';
 
 const Contact = () => {

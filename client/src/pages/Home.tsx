@@ -9,8 +9,6 @@ const Home = () => {
     queryKey: ['products'],
     queryFn: productService.getAll,
   });
-
-  const featuredProducts = products.slice(0, 8);
   
   // Get products with discounts for Special Offers section
   const specialOffers = products.filter(product => product.discount && product.discount > 0).slice(0, 8);
