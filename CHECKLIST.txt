@@ -1,0 +1,35 @@
+⬜ Step 1: Install Firebase SDK
+   cd client
+   npm install firebase
+
+⬜ Step 2: Get Firebase Config from Console
+   → https://console.firebase.google.com/
+   → Project: timeless-4db98
+   → Settings ⚙️ > Project settings > Your apps
+   → Copy: API Key, Sender ID, App ID
+
+⬜ Step 3: Update client/.env
+   VITE_FIREBASE_API_KEY=<paste-here>
+   VITE_FIREBASE_MESSAGING_SENDER_ID=<paste-here>
+   VITE_FIREBASE_APP_ID=<paste-here>
+
+⬜ Step 4: Enable Email Auth in Firebase
+   → Authentication > Sign-in method
+   → Enable Email/Password
+   → Save
+
+⬜ Step 5: Create Admin User
+   → Authentication > Users > Add user
+   → Email: admin@timeless.com
+   → Password: (your choice)
+
+⬜ Step 6: Deploy Storage Rules
+   firebase deploy --only storage
+
+⬜ Step 7: Test Login
+   npm start (in root)
+   npm run dev (in client)
+   → Visit http://localhost:5173/admin
+   → Login with Firebase email/password
+
+✅ DONE!

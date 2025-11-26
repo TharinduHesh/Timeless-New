@@ -1,0 +1,553 @@
+import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { adminProductService, orderService } from '../services/api';
+import { firebaseAuthService } from '../services/firebaseAuth';
+import { useAuthStore } from '../store/authStore';
+import type { Order, Product } from '../types';
+import { FiLogOut, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
+
+const Admin = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { isAuthenticated, logout, login } = useAuthStore();
+  
+  const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
+  const [showLoginForm, setShowLoginForm] = useState(!isAuthenticated);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Listen to Firebase auth state changes
+  useEffect(() => {
+    const unsubscribe = firebaseAuthService.onAuthStateChange(async (user) => {
+      if (user) {
+        // User is signed in, get the ID token
+        const token = await user.getIdToken();
+        login(token);
+        setShowLoginForm(false);
+      } else {
+        // User is signed out
+        logout();
+        setShowLoginForm(true);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [login, logout]);
+  
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [productFormData, setProductFormData] = useState({
+    name: '',
+    brand: '',
+    category: '',
+    price: '',
+    stock: '',
+    discount: '',
+    description: '',
+    image: '',
+  });
+
+  // Handle Firebase login
+  const handleFirebaseLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+
+    try {
+      const user = await firebaseAuthService.signIn(email, password);
+      const token = await user.getIdToken();
+      login(token);
+      setShowLoginForm(false);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      
+      // Handle specific Firebase error codes
+      if (error.code === 'auth/user-not-found') {
+        setLoginError('No account found with this email.');
+      } else if (error.code === 'auth/wrong-password') {
+        setLoginError('Incorrect password. Please try again.');
+      } else if (error.code === 'auth/invalid-email') {
+        setLoginError('Invalid email address.');
+      } else if (error.code === 'auth/user-disabled') {
+        setLoginError('This account has been disabled.');
+      } else if (error.code === 'auth/too-many-requests') {
+        setLoginError('Too many failed attempts. Please try again later.');
+      } else if (error.code === 'auth/invalid-credential') {
+        setLoginError('Invalid email or password.');
+      } else {
+        setLoginError('Login failed. Please check your credentials and try again.');
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const { data: products = [] } = useQuery({
+    queryKey: ['admin-products'],
+    queryFn: adminProductService.getAll,
+    enabled: isAuthenticated,
+  });
+
+  const { data: orders = [] } = useQuery({
+    queryKey: ['orders'],
+    queryFn: orderService.getAll,
+    enabled: isAuthenticated,
+  });
+
+  const createProductMutation = useMutation({
+    mutationFn: adminProductService.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      setShowProductForm(false);
+      resetProductForm();
+      alert('Product created successfully');
+    },
+  });
+
+  const updateProductMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Product> }) =>
+      adminProductService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      setShowProductForm(false);
+      setEditingProduct(null);
+      resetProductForm();
+      alert('Product updated successfully');
+    },
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: adminProductService.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      alert('Product deleted successfully');
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: Order['status'] }) =>
+      orderService.updateStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+
+  const handleLogout = async () => {
+    try {
+      await firebaseAuthService.signOut();
+      logout();
+      setShowLoginForm(true);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const resetProductForm = () => {
+    setProductFormData({
+      name: '',
+      brand: '',
+      category: '',
+      price: '',
+      stock: '',
+      discount: '',
+      description: '',
+      image: '',
+    });
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setProductFormData({
+      name: product.name,
+      brand: product.brand || '',
+      category: product.category || '',
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      discount: product.discount?.toString() || '',
+      description: product.description || '',
+      image: product.image,
+    });
+    setShowProductForm(true);
+  };
+
+  const handleDeleteProduct = (id: string) => {
+    if (confirm('Are you sure you want to delete this product?')) {
+      deleteProductMutation.mutate(id);
+    }
+  };
+
+  const handleProductSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const productData = {
+      name: productFormData.name,
+      brand: productFormData.brand,
+      category: productFormData.category,
+      price: parseFloat(productFormData.price),
+      stock: parseInt(productFormData.stock),
+      discount: productFormData.discount ? parseFloat(productFormData.discount) : 0,
+      description: productFormData.description,
+      image: productFormData.image,
+    };
+
+    if (editingProduct) {
+      updateProductMutation.mutate({ id: editingProduct.id, data: productData });
+    } else {
+      createProductMutation.mutate(productData);
+    }
+  };
+
+  const handleUpdateOrderStatus = (id: string, status: Order['status']) => {
+    updateStatusMutation.mutate({ id, status });
+  };
+
+  // Show login form if not authenticated
+  if (showLoginForm || !isAuthenticated) {
+    return (
+      <>
+        <Helmet>
+          <title>Admin Login - Timeless</title>
+        </Helmet>
+
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="card-glass p-8 w-full max-w-md">
+            <h1 className="text-3xl font-display font-bold text-accent text-center mb-8">
+              Admin Login
+            </h1>
+
+            <form onSubmit={handleFirebaseLogin} className="space-y-6">
+              <div>
+                <label className="block text-white mb-2 font-semibold">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-dark w-full"
+                  placeholder="admin@example.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-white mb-2 font-semibold">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-dark w-full"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+
+              {loginError && (
+                <p className="text-red-500 text-sm text-center">{loginError}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="add-to-cart-btn w-full"
+              >
+                {isLoggingIn ? 'Logging in...' : 'Login with Firebase'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Helmet>
+        <title>Admin Panel - Timeless</title>
+      </Helmet>
+
+      <div className="admin-page section-container">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-display font-bold text-white">
+            Admin Panel
+          </h1>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-white hover:text-accent transition-colors"
+          >
+            <FiLogOut size={20} />
+            Logout
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-4 mb-8 justify-center">
+          <button
+            onClick={() => setActiveTab('products')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'products'
+                ? 'bg-gradient-to-r from-accent to-accent-strong text-black'
+                : 'bg-white/[0.03] text-white hover:bg-white/[0.05]'
+            }`}
+          >
+            Products ({products.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'orders'
+                ? 'bg-gradient-to-r from-accent to-accent-strong text-black'
+                : 'bg-white/[0.03] text-white hover:bg-white/[0.05]'
+            }`}
+          >
+            Orders ({orders.length})
+          </button>
+        </div>
+
+        {/* Products Tab */}
+        {activeTab === 'products' && (
+          <div className="space-y-6">
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  setEditingProduct(null);
+                  resetProductForm();
+                  setShowProductForm(true);
+                }}
+                className="add-to-cart-btn flex items-center gap-2"
+              >
+                <FiPlus size={20} />
+                Add New Product
+              </button>
+            </div>
+
+            {showProductForm && (
+              <div className="card-glass p-6 mb-6">
+                <h2 className="text-2xl font-bold text-accent mb-4">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h2>
+                <form onSubmit={handleProductSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-white mb-2">Name *</label>
+                    <input
+                      type="text"
+                      value={productFormData.name}
+                      onChange={(e) => setProductFormData({ ...productFormData, name: e.target.value })}
+                      className="input-dark w-full"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white mb-2">Brand</label>
+                    <input
+                      type="text"
+                      value={productFormData.brand}
+                      onChange={(e) => setProductFormData({ ...productFormData, brand: e.target.value })}
+                      className="input-dark w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white mb-2">Category</label>
+                    <input
+                      type="text"
+                      value={productFormData.category}
+                      onChange={(e) => setProductFormData({ ...productFormData, category: e.target.value })}
+                      className="input-dark w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white mb-2">Price *</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={productFormData.price}
+                      onChange={(e) => setProductFormData({ ...productFormData, price: e.target.value })}
+                      className="input-dark w-full"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white mb-2">Stock *</label>
+                    <input
+                      type="number"
+                      value={productFormData.stock}
+                      onChange={(e) => setProductFormData({ ...productFormData, stock: e.target.value })}
+                      className="input-dark w-full"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white mb-2">Discount (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={productFormData.discount}
+                      onChange={(e) => setProductFormData({ ...productFormData, discount: e.target.value })}
+                      className="input-dark w-full"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-white mb-2">Image URL *</label>
+                    <input
+                      type="url"
+                      value={productFormData.image}
+                      onChange={(e) => setProductFormData({ ...productFormData, image: e.target.value })}
+                      className="input-dark w-full"
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-white mb-2">Description</label>
+                    <textarea
+                      value={productFormData.description}
+                      onChange={(e) => setProductFormData({ ...productFormData, description: e.target.value })}
+                      className="input-dark w-full"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="md:col-span-2 flex gap-4">
+                    <button type="submit" className="add-to-cart-btn flex-1">
+                      {editingProduct ? 'Update Product' : 'Create Product'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowProductForm(false);
+                        setEditingProduct(null);
+                        resetProductForm();
+                      }}
+                      className="btn-gold-outline flex-1"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            <div className="card-glass p-6">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/[0.05]">
+                      <th className="text-left text-accent font-semibold p-3">Image</th>
+                      <th className="text-left text-accent font-semibold p-3">Name</th>
+                      <th className="text-left text-accent font-semibold p-3">Brand</th>
+                      <th className="text-left text-accent font-semibold p-3">Price</th>
+                      <th className="text-left text-accent font-semibold p-3">Stock</th>
+                      <th className="text-left text-accent font-semibold p-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.id} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
+                        <td className="p-3">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-16 h-16 object-contain bg-white/5 rounded"
+                          />
+                        </td>
+                        <td className="text-white p-3">{product.name}</td>
+                        <td className="text-gray-300 p-3">{product.brand}</td>
+                        <td className="text-accent font-bold p-3">
+                          ${product.price.toFixed(2)}
+                        </td>
+                        <td className="text-gray-300 p-3">{product.stock}</td>
+                        <td className="p-3">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditProduct(product)}
+                              className="text-accent hover:text-accent-strong transition-colors"
+                              title="Edit"
+                            >
+                              <FiEdit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(product.id)}
+                              className="text-red-500 hover:text-red-400 transition-colors"
+                              title="Delete"
+                            >
+                              <FiTrash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Orders Tab */}
+        {activeTab === 'orders' && (
+          <div className="space-y-4">
+            {orders.length === 0 ? (
+              <div className="card-glass p-8 text-center">
+                <p className="text-gray-300 text-lg">No orders yet</p>
+              </div>
+            ) : (
+              orders.map((order) => (
+                <div key={order.id} className="card-glass p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-white font-bold text-lg mb-1">
+                        Order #{order.id}
+                      </h3>
+                      <p className="text-gray-300 text-sm">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <select
+                      value={order.status}
+                      onChange={(e) =>
+                        handleUpdateOrderStatus(order.id, e.target.value as Order['status'])
+                      }
+                      className="input-dark"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-4">
+                    <h4 className="text-accent font-semibold mb-2">Customer</h4>
+                    <p className="text-gray-300 text-sm">{order.customer.name}</p>
+                    <p className="text-gray-300 text-sm">{order.customer.email}</p>
+                    <p className="text-gray-300 text-sm">{order.customer.phone}</p>
+                  </div>
+
+                  <div className="mb-4">
+                    <h4 className="text-accent font-semibold mb-2">Items</h4>
+                    {order.items.map((item) => (
+                      <p key={item.id} className="text-gray-300 text-sm">
+                        {item.product.name} × {item.quantity} - ${(item.product.price * item.quantity).toFixed(2)}
+                      </p>
+                    ))}
+                  </div>
+
+                  <div className="text-accent font-bold text-xl">
+                    Total: ${order.total.toFixed(2)}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default Admin;

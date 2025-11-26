@@ -1,0 +1,170 @@
+[
+  {
+    "id": "p-bracelet-women-001",
+    "name": "Sterling Infinity Bracelet",
+    "brand": "Timeless Studio",
+    "price": 6900,
+    "discount": 5,
+    "category": "bracelet",
+    "audience": "women",
+    "inStock": 24,
+    "image": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500&q=80",
+      "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=500&q=80",
+      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=500&q=80"
+    ],
+    "description": "925 sterling silver bracelet featuring a minimalist infinity charm.",
+    "featured": false
+  },
+  {
+    "id": "p-necklace-men-001",
+    "name": "Steel Dog Tag Necklace test",
+    "brand": "Urban Edge",
+    "price": 8900,
+    "discount": 10,
+    "inStock": 15,
+    "category": "necklace",
+    "audience": "men",
+    "image": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500&q=80",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg"
+    ],
+    "description": "Military-inspired stainless steel dog tag on heavy-duty chain.",
+    "featured": false
+  },
+  {
+    "id": "p-necklace-women-001",
+    "name": "Pearl Pendant Necklace",
+    "brand": "Timeless Studio",
+    "price": 14200,
+    "discount": 0,
+    "category": "necklace",
+    "audience": "women",
+    "inStock": 12,
+    "image": "/img/placeholder.jpg",
+    "images": [
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg"
+    ],
+    "description": "Elegant freshwater pearl pendant on 18k gold-plated chain.",
+    "detailedDescription": "ELEGANT PEARL PENDANT NECKLACE\nTimeless elegance meets modern craftsmanship in this stunning freshwater pearl necklace.\n\nMATERIALS & CRAFTSMANSHIP\n• Chain: 18k Gold Plated Stainless Steel - Hypoallergenic and durable\n• Pendant: Natural Freshwater Pearl (AAA Grade) - Each pearl is unique\n• Chain Length: 40-45cm adjustable with extension clasp\n• Finish: Mirror Polished - Premium luxury finish\n\nKEY FEATURES\n• Adjustable chain with secure lobster clasp\n• Hypoallergenic materials - Safe for sensitive skin\n• Water resistant coating - Safe for daily wear\n• Natural pearl - No two pieces are exactly alike\n• Comes in luxury gift box with certificate of authenticity\n• 2-year manufacturer warranty\n• Free returns within 30 days\n\nPERFECT FOR\nWeddings, anniversaries, birthdays, or everyday elegance. This versatile piece transitions seamlessly from day to night.\n\nCARE INSTRUCTIONS\nWipe gently with soft cloth after each wear. Avoid contact with perfumes and chemicals. Store in provided jewelry box.",
+    "featured": true
+  },
+  {
+    "id": "p-perfume-men-001",
+    "name": "Royal Oud Eau de Parfum",
+    "brand": "Aurum",
+    "price": 18500,
+    "discount": 0,
+    "category": "perfume",
+    "audience": "men",
+    "inStock": 12,
+    "image": "/img/placeholder.jpg",
+    "images": [
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg"
+    ],
+    "description": "Warm woody fragrance with notes of agarwood, sandalwood, and amber.",
+    "featured": true
+  },
+  {
+    "id": "p-perfume-women-001",
+    "name": "Velvet Rose Eau de Parfum",
+    "brand": "Aurum",
+    "price": 17600,
+    "discount": 15,
+    "category": "perfume",
+    "audience": "women",
+    "inStock": 15,
+    "image": "/img/placeholder.jpg",
+    "images": [
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg"
+    ],
+    "description": "Romantic floral blend of rose and jasmine with a soft musk base.",
+    "featured": true
+  },
+  {
+    "id": "p-accessory-men-001",
+    "name": "Leather Bifold Wallet",
+    "brand": "Timeless Goods",
+    "price": 5800,
+    "discount": 0,
+    "category": "accessory",
+    "audience": "men",
+    "inStock": 32,
+    "image": "/img/placeholder.jpg",
+    "images": [
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg"
+    ],
+    "description": "Full-grain leather wallet with RFID protection and multiple card slots.",
+    "featured": false
+  },
+  {
+    "id": "p-accessory-women-001",
+    "name": "Silk Scarf Collection",
+    "brand": "Timeless Goods",
+    "price": 4200,
+    "discount": 5,
+    "category": "accessory",
+    "audience": "women",
+    "inStock": 28,
+    "image": "/img/placeholder.jpg",
+    "images": [
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg"
+    ],
+    "description": "Premium silk scarf with hand-rolled edges and elegant floral print.",
+    "featured": false
+  },
+  {
+    "id": "p-watch-men-001",
+    "name": "Chronograph Sport Watch",
+    "brand": "Timeless",
+    "price": 32500,
+    "discount": 20,
+    "category": "watch",
+    "audience": "men",
+    "inStock": 8,
+    "image": "/img/placeholder.jpg",
+    "images": [
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg"
+    ],
+    "description": "Swiss movement chronograph with stainless steel case and sapphire crystal.",
+    "featured": true
+  },
+  {
+    "id": "p-watch-women-001",
+    "name": "Rose Gold Elegance Watch",
+    "brand": "Timeless",
+    "price": 28900,
+    "discount": 10,
+    "category": "watch",
+    "audience": "women",
+    "inStock": 6,
+    "image": "/img/placeholder.jpg",
+    "images": [
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg",
+      "/img/placeholder.jpg"
+    ],
+    "description": "Delicate rose gold-plated watch with mother-of-pearl dial and Italian leather strap.",
+    "featured": true
+  }
+]

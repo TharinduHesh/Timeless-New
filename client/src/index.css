@@ -1,0 +1,240 @@
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-900: #0b0b0c;
+    --bg-800: #0f0f10;
+    --card: #121214;
+    --muted: #d1d1d1;
+    --accent: #c7a17a;
+    --accent-strong: #b78f62;
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-2: rgba(255, 255, 255, 0.04);
+    --radius: 12px;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    background-color: #000000;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(199, 161, 122, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(199, 161, 122, 0.06) 0%, transparent 50%),
+      linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #050505 100%);
+    background-attachment: fixed;
+    color: #eeeeee;
+    min-height: 100vh;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .text-muted {
+    color: #d1d1d1 !important;
+  }
+}
+
+@layer components {
+  .btn-gold {
+    @apply bg-gradient-to-r from-accent to-accent-strong text-black font-semibold py-3 px-6 
+           rounded-full transition-all duration-200 hover:-translate-y-0.5;
+  }
+
+  .btn-gold-outline {
+    @apply border-2 border-accent text-accent font-semibold py-2 px-5 
+           rounded-full transition-all duration-200 hover:bg-accent hover:text-black;
+  }
+
+  .card-glass {
+    @apply bg-gradient-to-br from-white/[0.05] to-white/[0.02] rounded-xl 
+           border border-white/[0.08] backdrop-blur-sm shadow-2xl
+           transition-all duration-300;
+  }
+
+  .card-glass:hover {
+    @apply -translate-y-2 shadow-[0_20px_60px_rgba(199,161,122,0.15)] border-accent/20;
+  }
+
+  .product-card {
+    @apply card-glass flex flex-col h-full p-2.5 bg-gradient-to-br from-black/40 to-black/20;
+  }
+
+  .product-card .product-image img {
+    @apply w-full h-56 object-contain bg-gradient-to-br from-white/[0.08] to-white/[0.03] rounded-lg;
+  }
+
+  .product-discount {
+    @apply bg-gradient-to-r from-red-600 to-red-700 text-white font-bold px-3 py-1.5 rounded-lg;
+  }
+
+  .add-to-cart-btn {
+    @apply bg-gradient-to-r from-accent to-accent-strong text-black font-semibold py-2.5 px-4 
+           rounded-lg transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .out-of-stock-badge {
+    @apply bg-red-600/20 border border-red-600/40 text-red-400 font-bold py-2 px-4 rounded-lg;
+  }
+
+  .input-dark {
+    @apply bg-white/[0.03] border border-white/[0.05] text-white 
+           px-4 py-2 rounded-none focus:outline-none focus:border-accent/50;
+  }
+  
+  /* Fix dropdown select elements */
+  .input-dark select,
+  select.input-dark {
+    @apply bg-black/80 text-white;
+    color: white !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
+  }
+  
+  .input-dark option,
+  select.input-dark option {
+    @apply bg-black text-white;
+    background-color: #000000 !important;
+    color: white !important;
+  }
+
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12;
+  }
+
+  .luxury-hero {
+    @apply relative overflow-hidden bg-gradient-to-br from-black via-zinc-900 to-black;
+    background-image: 
+      radial-gradient(circle at 30% 20%, rgba(199, 161, 122, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(199, 161, 122, 0.08) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c7a17a' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .luxury-section {
+    @apply relative;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%);
+  }
+
+  .filters-sidebar {
+    @apply bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-xl 
+           border border-white/[0.08] backdrop-blur-md shadow-xl;
+  }
+}
+
+@layer utilities {
+  .text-shadow-gold {
+    text-shadow: 0 0 20px rgba(199, 161, 122, 0.6), 0 0 30px rgba(199, 161, 122, 0.4);
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shimmer {
+    from {
+      text-shadow: 0 0 10px rgba(199, 161, 122, 0.3);
+    }
+    to {
+      text-shadow: 0 0 20px rgba(199, 161, 122, 0.6), 0 0 30px rgba(199, 161, 122, 0.4);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 1s ease-out;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-900);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-strong);
+}
+
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 3px solid rgba(199, 161, 122, 0.22);
+  outline-offset: 2px;
+}

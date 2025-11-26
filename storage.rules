@@ -1,0 +1,46 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is authenticated (admin)
+    function isAdmin() {
+      return request.auth != null;
+    }
+    
+    // Helper function to validate image file
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*')
+             && request.resource.size < 5 * 1024 * 1024; // Max 5MB per image
+    }
+    
+    // Product images - up to 5 images per product
+    match /products/{productId}/{imageId} {
+      // Anyone can read product images (public access)
+      allow read: if true;
+      
+      // Only authenticated admins can upload images
+      // Validates: authenticated, image type, max 5MB size
+      allow create: if isAdmin() && isValidImage();
+      
+      // Only authenticated admins can update images
+      allow update: if isAdmin() && isValidImage();
+      
+      // Only authenticated admins can delete images
+      allow delete: if isAdmin();
+    }
+    
+    // Fallback for old/temporary image paths during migration
+    match /products/{allPaths=**} {
+      // Anyone can read (backward compatibility)
+      allow read: if true;
+      
+      // Only admins can write
+      allow write: if isAdmin() && isValidImage();
+    }
+    
+    // Prevent access to root or other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
