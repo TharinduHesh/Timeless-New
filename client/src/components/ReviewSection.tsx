@@ -39,7 +39,7 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
       return firestoreReviewService.create({
         productId,
         userId: user.uid,
-        userName: user.displayName || user.email?.split('@')[0] || 'Anonymous',
+        userName: user.displayName || `User ${user.email?.split('@')[0] || 'Guest'}`,
         userEmail: user.email || '',
         rating: data.rating,
         comment: data.comment,
