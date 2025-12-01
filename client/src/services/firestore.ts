@@ -431,6 +431,29 @@ export const firestoreReviewService = {
     }
   },
 
+  // Get all approved reviews (admin only)
+  getAllApproved: async () => {
+    try {
+      const reviewsRef = collection(db, REVIEWS_COLLECTION);
+      const q = query(reviewsRef, where('approved', '==', true));
+      const snapshot = await getDocs(q);
+      
+      const reviews = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+      }));
+      
+      // Sort by date on client side
+      return reviews.sort((a: any, b: any) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    } catch (error) {
+      console.error('Error fetching approved reviews:', error);
+      return []; // Return empty array instead of throwing
+    }
+  },
+
   // Create review (pending approval)
   create: async (reviewData: { productId: string; userId: string; userName: string; userEmail: string; rating: number; comment: string }) => {
     try {

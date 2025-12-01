@@ -238,6 +238,18 @@ const Admin = () => {
     enabled: isAuthenticated,
   });
 
+  const { data: approvedReviews = [] } = useQuery({
+    queryKey: ['approved-reviews'],
+    queryFn: firestoreReviewService.getAllApproved,
+    enabled: isAuthenticated && activeTab === 'reviews',
+  });
+
+  const { data: allProducts = [] } = useQuery({
+    queryKey: ['all-products-for-reviews'],
+    queryFn: firestoreProductService.getAll,
+    enabled: isAuthenticated && activeTab === 'reviews',
+  });
+
   const approveReviewMutation = useMutation({
     mutationFn: (reviewId: string) => firestoreReviewService.approve(reviewId),
     onSuccess: () => {
@@ -254,6 +266,7 @@ const Admin = () => {
     mutationFn: (reviewId: string) => firestoreReviewService.delete(reviewId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['approved-reviews'] });
       alert('Review deleted successfully!');
     },
     onError: (error) => {
@@ -1196,6 +1209,64 @@ const Admin = () => {
                       <p className="text-white">{review.comment}</p>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Approved Reviews Section */}
+            <div className="card-glass p-6">
+              <h2 className="text-2xl font-bold text-accent mb-6">Approved Reviews</h2>
+              
+              {approvedReviews.length === 0 ? (
+                <div className="text-center py-12">
+                  <FiStar size={48} className="mx-auto text-gray-600 mb-4" />
+                  <p className="text-gray-400">No approved reviews yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {approvedReviews.map((review: any) => {
+                    const product = allProducts.find((p: any) => p.id === review.productId);
+                    return (
+                      <div key={review.id} className="bg-white/[0.03] p-6 rounded-lg border border-white/[0.05]">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="font-semibold text-white">{review.userName}</span>
+                              <span className="text-sm text-gray-400">
+                                {new Date(review.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 mb-2">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <FiStar
+                                  key={star}
+                                  className={`w-4 h-4 ${
+                                    star <= review.rating ? 'fill-accent text-accent' : 'text-gray-400'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <p className="text-sm text-gray-400 mb-2">
+                              Product: {product?.name || review.productId}
+                            </p>
+                            <p className="text-white mt-3">{review.comment}</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to delete this approved review?')) {
+                                deleteReviewMutation.mutate(review.id);
+                              }
+                            }}
+                            disabled={deleteReviewMutation.isPending}
+                            className="p-2 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors ml-4"
+                            title="Delete review"
+                          >
+                            <FiTrash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

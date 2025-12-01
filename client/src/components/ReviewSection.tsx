@@ -222,15 +222,6 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
                       </span>
                     </div>
                   </div>
-                  {isAuthenticated && (
-                    <button
-                      onClick={() => handleDeleteReview(review.id)}
-                      className="p-2 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                      title="Delete review"
-                    >
-                      <FiTrash2 size={18} />
-                    </button>
-                  )}
                 </div>
                 <p className="text-white/80">{review.comment}</p>
               </div>
