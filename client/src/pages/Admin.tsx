@@ -238,16 +238,16 @@ const Admin = () => {
     enabled: isAuthenticated,
   });
 
-  const { data: approvedReviews = [] } = useQuery({
+  const { data: approvedReviews = [], isLoading: loadingApproved } = useQuery({
     queryKey: ['approved-reviews'],
     queryFn: firestoreReviewService.getAllApproved,
-    enabled: isAuthenticated && activeTab === 'reviews',
+    enabled: isAuthenticated,
   });
 
   const { data: allProducts = [] } = useQuery({
     queryKey: ['all-products-for-reviews'],
     queryFn: firestoreProductService.getAll,
-    enabled: isAuthenticated && activeTab === 'reviews',
+    enabled: isAuthenticated,
   });
 
   const approveReviewMutation = useMutation({
@@ -1215,9 +1215,16 @@ const Admin = () => {
 
             {/* Approved Reviews Section */}
             <div className="card-glass p-6">
-              <h2 className="text-2xl font-bold text-accent mb-6">Approved Reviews</h2>
+              <h2 className="text-2xl font-bold text-accent mb-6">
+                Approved Reviews ({approvedReviews.length})
+              </h2>
               
-              {approvedReviews.length === 0 ? (
+              {loadingApproved ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent mx-auto mb-4"></div>
+                  <p className="text-gray-400">Loading approved reviews...</p>
+                </div>
+              ) : approvedReviews.length === 0 ? (
                 <div className="text-center py-12">
                   <FiStar size={48} className="mx-auto text-gray-600 mb-4" />
                   <p className="text-gray-400">No approved reviews yet</p>
