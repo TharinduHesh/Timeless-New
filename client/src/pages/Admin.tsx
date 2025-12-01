@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { firestoreProductService, firestoreStorageService, firestoreContactService } from '../services/firestore';
+import { firestoreProductService, firestoreStorageService, firestoreContactService, firestoreSettingsService } from '../services/firestore';
 import { firebaseAuthService } from '../services/firebaseAuth';
 import { useAuthStore } from '../store/authStore';
 import type { Product } from '../types';
@@ -127,22 +127,8 @@ const Admin = () => {
 
   const fetchSettings = async () => {
     try {
-      const user = await firebaseAuthService.getCurrentUser();
-      if (!user) return;
-      const token = await user.getIdToken(true); // Force refresh token
-      
-      const response = await fetch(`${API_BASE}/api/admin/settings`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setShippingFee(data.shippingFee || 0);
-      } else {
-        console.error('Failed to fetch settings:', response.status, response.statusText);
-      }
+      const data = await firestoreSettingsService.get();
+      setShippingFee(data.shippingFee || 0);
     } catch (error) {
       console.error('Failed to fetch settings:', error);
     }
@@ -382,26 +368,8 @@ const Admin = () => {
 
   const saveSettingsMutation = useMutation({
     mutationFn: async (settings: { shippingFee: number }) => {
-      // Get fresh token from Firebase
-      const user = await firebaseAuthService.getCurrentUser();
-      if (!user) throw new Error('User not authenticated');
-      const token = await user.getIdToken(true); // Force refresh
-      
-      const response = await fetch(`${API_BASE}/api/admin/settings`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(settings),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to save settings');
-      }
-      
-      return response.json();
+      await firestoreSettingsService.update(settings);
+      return settings;
     },
     onSuccess: () => {
       alert('Settings saved successfully');

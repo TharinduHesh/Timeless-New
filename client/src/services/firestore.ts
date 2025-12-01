@@ -6,6 +6,7 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc,
+  setDoc,
   query,
   where,
   orderBy,
@@ -26,6 +27,7 @@ import type { Product } from '../types';
 const PRODUCTS_COLLECTION = 'products';
 const ORDERS_COLLECTION = 'orders';
 const CONTACT_MESSAGES_COLLECTION = 'contactMessages';
+const SETTINGS_COLLECTION = 'settings';
 
 // ============= PRODUCTS =============
 
@@ -276,6 +278,43 @@ export const firestoreOrderService = {
   },
 };
 
+// ============= SETTINGS =============
+
+export const firestoreSettingsService = {
+  // Get settings
+  get: async () => {
+    try {
+      const settingsRef = doc(db, SETTINGS_COLLECTION, 'general');
+      const snapshot = await getDoc(settingsRef);
+      
+      if (!snapshot.exists()) {
+        // Return default settings
+        return { shippingFee: 0 };
+      }
+      
+      return snapshot.data();
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      throw error;
+    }
+  },
+
+  // Update settings
+  update: async (settings: { shippingFee: number }) => {
+    try {
+      const settingsRef = doc(db, SETTINGS_COLLECTION, 'general');
+      // Use setDoc with merge to create if doesn't exist
+      await setDoc(settingsRef, {
+        ...settings,
+        updatedAt: Timestamp.now(),
+      }, { merge: true });
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      throw error;
+    }
+  },
+};
+
 // ============= CONTACT MESSAGES =============
 
 export const firestoreContactService = {
@@ -347,4 +386,5 @@ export default {
   storage: firestoreStorageService,
   orders: firestoreOrderService,
   contactMessages: firestoreContactService,
+  settings: firestoreSettingsService,
 };
