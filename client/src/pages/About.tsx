@@ -22,7 +22,7 @@ const About = () => {
             </p>
 
             <p className="text-gray-300 text-lg leading-relaxed mb-6">
-              At Timeless, we believe that a watch is more than just a timepiece—it's a statement of 
+              At Timeless, we believe that a watch is more than just a timepiece it's a statement of 
               style, a testament to craftsmanship, and a companion for life's most important moments. 
               Our curated selection represents the pinnacle of horological excellence.
             </p>
