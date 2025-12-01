@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { firestoreReviewService } from '../services/firestore';
 import { firebaseAuthService } from '../services/firebaseAuth';
 import { useAuthStore } from '../store/authStore';
-import { FiStar } from 'react-icons/fi';
+import { FiStar, FiTrash2 } from 'react-icons/fi';
 import type { Review } from '../types';
 
 interface ReviewSectionProps {
@@ -57,6 +57,28 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
       alert('Failed to submit review: ' + error.message);
     },
   });
+
+  // Delete review mutation
+  const deleteReviewMutation = useMutation({
+    mutationFn: async (reviewId: string) => {
+      return firestoreReviewService.delete(reviewId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reviews', productId] });
+      queryClient.invalidateQueries({ queryKey: ['rating', productId] });
+      alert('Review deleted successfully!');
+    },
+    onError: (error: any) => {
+      alert('Failed to delete review: ' + error.message);
+    },
+  });
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!window.confirm('Are you sure you want to delete this review?')) {
+      return;
+    }
+    deleteReviewMutation.mutate(reviewId);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,7 +213,7 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
             {(reviews as Review[]).map((review) => (
               <div key={review.id} className="card-glass p-6 space-y-3">
                 <div className="flex items-start justify-between">
-                  <div>
+                  <div className="flex-1">
                     <div className="font-semibold">{review.userName}</div>
                     <div className="flex items-center gap-2 mt-1">
                       {renderStars(review.rating)}
@@ -200,6 +222,15 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
                       </span>
                     </div>
                   </div>
+                  {isAuthenticated && (
+                    <button
+                      onClick={() => handleDeleteReview(review.id)}
+                      className="p-2 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      title="Delete review"
+                    >
+                      <FiTrash2 size={18} />
+                    </button>
+                  )}
                 </div>
                 <p className="text-white/80">{review.comment}</p>
               </div>
