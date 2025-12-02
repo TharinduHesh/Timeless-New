@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { firestoreReviewService } from '../services/firestore';
 import { firebaseAuthService } from '../services/firebaseAuth';
 import { useAuthStore } from '../store/authStore';
-import { FiStar, FiTrash2 } from 'react-icons/fi';
+import { FiStar } from 'react-icons/fi';
 import type { Review } from '../types';
 
 interface ReviewSectionProps {
@@ -57,28 +57,6 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
       alert('Failed to submit review: ' + error.message);
     },
   });
-
-  // Delete review mutation
-  const deleteReviewMutation = useMutation({
-    mutationFn: async (reviewId: string) => {
-      return firestoreReviewService.delete(reviewId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reviews', productId] });
-      queryClient.invalidateQueries({ queryKey: ['rating', productId] });
-      alert('Review deleted successfully!');
-    },
-    onError: (error: any) => {
-      alert('Failed to delete review: ' + error.message);
-    },
-  });
-
-  const handleDeleteReview = async (reviewId: string) => {
-    if (!window.confirm('Are you sure you want to delete this review?')) {
-      return;
-    }
-    deleteReviewMutation.mutate(reviewId);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
